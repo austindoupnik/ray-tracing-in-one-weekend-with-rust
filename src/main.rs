@@ -1,3 +1,10 @@
+use std::io;
+use std::borrow::BorrowMut;
+use crate::color::{write_color, Color};
+
+mod vec3;
+mod color;
+
 fn main() {
     const IMAGE_WIDTH: u32 = 256;
     const IMAGE_HEIGHT: u32 = 256;
@@ -11,11 +18,8 @@ fn main() {
             let g: f64 = (j as f64) / (IMAGE_HEIGHT - 1) as f64;
             let b: f64 = 0.25;
 
-            let ir: u32 = (255.999 * r) as u32;
-            let ig: u32 = (255.999 * g) as u32;
-            let ib: u32 = (255.999 * b) as u32;
-
-            print!("{} {} {}\n", ir, ig, ib);
+            let pixel_color = Color { e: [r, g, b] };
+            write_color(io::stdout().borrow_mut(), pixel_color);
         }
     }
 
