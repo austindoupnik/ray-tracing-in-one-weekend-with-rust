@@ -3,28 +3,29 @@ use std::fmt;
 use std::io::Write;
 use std::ops::Div;
 
+#[derive(Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3],
 }
 
 impl Vec3 {
-    fn x(&self) -> f64 {
+    pub fn x(&self) -> f64 {
         self.e[0]
     }
 
-    fn y(&self) -> f64 {
+    pub fn y(&self) -> f64 {
         self.e[1]
     }
 
-    fn z(&self) -> f64 {
+    pub fn z(&self) -> f64 {
         self.e[2]
     }
 
-    fn length(&self) -> f64 {
+    pub fn length(&self) -> f64 {
         f64::sqrt(self.length_squared())
     }
 
-    fn length_squared(&self) -> f64 {
+    pub fn length_squared(&self) -> f64 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
     }
 }
@@ -140,4 +141,8 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
         u.e[0] * v.e[1] - u.e[1] * v.e[0],
     ];
     Vec3 { e }
+}
+
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
 }
