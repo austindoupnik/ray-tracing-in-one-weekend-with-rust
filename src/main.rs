@@ -1,9 +1,10 @@
-use std::io;
 use std::borrow::BorrowMut;
-use crate::color::{write_color, Color};
-use crate::vec3::{unit_vector, Vec3, dot};
-use crate::ray::Ray;
+use std::io;
+
+use crate::color::{Color, write_color};
 use crate::point3::Point3;
+use crate::ray::Ray;
+use crate::vec3::{dot, unit_vector, Vec3};
 
 mod vec3;
 mod color;
@@ -16,7 +17,7 @@ fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> bool {
     let b = 2.0 * dot(oc, r.direction());
     let c = dot(oc, oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    return discriminant > 0.0;
+    discriminant > 0.0
 }
 
 fn ray_color(r: &Ray) -> Color {
@@ -40,10 +41,10 @@ fn main() {
     const FOCAL_LENGTH: f64 = 1.0;
 
     let origin = Point3::new(0.0, 0.0, 0.0);
-    let horizontal  = Vec3::new(VIEWPORT_WIDTH, 0.0, 0.0);
+    let horizontal = Vec3::new(VIEWPORT_WIDTH, 0.0, 0.0);
     let vertical = Vec3::new(0.0, VIEWPORT_HEIGHT, 0.0);
 
-    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, FOCAL_LENGTH );
+    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, FOCAL_LENGTH);
 
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
 
