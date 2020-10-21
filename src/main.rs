@@ -39,11 +39,11 @@ fn main() {
     const VIEWPORT_WIDTH: f64 = ASPECT_RATIO * VIEWPORT_HEIGHT;
     const FOCAL_LENGTH: f64 = 1.0;
 
-    let origin: Point3  = Point3::new(0.0, 0.0, 0.0);
-    let horizontal: Vec3  = Vec3::new(VIEWPORT_WIDTH, 0.0, 0.0);
-    let vertical: Vec3  = Vec3::new(0.0, VIEWPORT_HEIGHT, 0.0);
+    let origin = Point3::new(0.0, 0.0, 0.0);
+    let horizontal  = Vec3::new(VIEWPORT_WIDTH, 0.0, 0.0);
+    let vertical = Vec3::new(0.0, VIEWPORT_HEIGHT, 0.0);
 
-    let lower_left_corner: Vec3  = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, FOCAL_LENGTH );
+    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, FOCAL_LENGTH );
 
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
 
