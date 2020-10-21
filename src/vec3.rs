@@ -7,6 +7,12 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
+        Vec3 {
+            e: [x, y, z],
+        }
+    }
+
     pub fn x(&self) -> f64 {
         self.e[0]
     }
@@ -32,7 +38,7 @@ impl ops::Neg for Vec3 {
     type Output = Vec3;
 
     fn neg(self) -> Self::Output {
-        Vec3 { e: [-self.e[0], -self.e[1], -self.e[2]] }
+        Vec3::new(-self.e[0], -self.e[1], -self.e[2])
     }
 }
 
@@ -66,8 +72,6 @@ impl ops::DivAssign<f64> for Vec3 {
     }
 }
 
-pub type Point3 = Vec3;
-
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -84,7 +88,7 @@ impl ops::Add for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Self::Output {
-        Vec3 { e: [self.e[0] + rhs.e[0], self.e[1] + rhs.e[1], self.e[2] + rhs.e[2]] }
+        Vec3::new(self.e[0] + rhs.e[0], self.e[1] + rhs.e[1], self.e[2] + rhs.e[2])
     }
 }
 
@@ -92,7 +96,7 @@ impl ops::Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Vec3) -> Self::Output {
-        Vec3 { e: [self.e[0] - rhs.e[0], self.e[1] - rhs.e[1], self.e[2] - rhs.e[2]] }
+        Vec3::new(self.e[0] - rhs.e[0], self.e[1] - rhs.e[1], self.e[2] - rhs.e[2])
     }
 }
 
@@ -100,7 +104,7 @@ impl ops::Mul for Vec3 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3 { e: [self.e[0] * rhs.e[0], self.e[1] * rhs.e[1], self.e[2] * rhs.e[2]] }
+        Vec3::new(self.e[0] * rhs.e[0], self.e[1] * rhs.e[1], self.e[2] * rhs.e[2])
     }
 }
 
@@ -108,7 +112,7 @@ impl ops::Mul<Vec3> for f64 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3 { e: [self * rhs.e[0], self * rhs.e[1], self * rhs.e[2]] }
+        Vec3::new(self * rhs.e[0], self * rhs.e[1], self * rhs.e[2])
     }
 }
 
@@ -135,12 +139,11 @@ pub fn dot(u: Vec3, v: Vec3) -> f64 {
 
 #[allow(dead_code)]
 pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
-    let e = [
+    Vec3::new(
         u.e[1] * v.e[2] - u.e[2] * v.e[1],
         u.e[2] * v.e[0] - u.e[0] * v.e[2],
         u.e[0] * v.e[1] - u.e[1] * v.e[0],
-    ];
-    Vec3 { e }
+    )
 }
 
 pub fn unit_vector(v: Vec3) -> Vec3 {

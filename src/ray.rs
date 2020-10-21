@@ -1,4 +1,5 @@
-use crate::vec3::{Point3, Vec3};
+use crate::vec3::Vec3;
+use crate::point3::Point3;
 
 pub struct Ray {
     pub origin: Point3,
@@ -18,5 +19,12 @@ impl Ray {
     #[allow(dead_code)]
     pub fn at(&self, t: f64) -> Point3 {
         self.origin + t * self.dir
+    }
+}
+
+pub fn new(origin: Point3, dir: Vec3) -> Ray {
+    Ray {
+        origin,
+        dir,
     }
 }

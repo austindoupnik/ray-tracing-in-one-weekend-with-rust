@@ -1,12 +1,14 @@
 use std::io;
 use std::borrow::BorrowMut;
 use crate::color::{write_color, Color};
-use crate::vec3::{unit_vector, Point3, Vec3, dot};
+use crate::vec3::{unit_vector, Vec3, dot};
 use crate::ray::Ray;
+use crate::point3::Point3;
 
 mod vec3;
 mod color;
 mod ray;
+mod point3;
 
 fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> bool {
     let oc = r.origin() - *center;
@@ -18,13 +20,13 @@ fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> bool {
 }
 
 fn ray_color(r: &Ray) -> Color {
-    if hit_sphere(&Point3 { e: [0.0, 0.0, -1.0] }, 0.5, r) {
-        return Color { e: [1.0, 0.0, 0.0] };
+    if hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, r) {
+        return Color::new(1.0, 0.0, 0.0);
     }
 
     let unit_direction = unit_vector(r.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Color { e: [1.0, 1.0, 1.0] } + t * Color { e: [0.5, 0.7, 1.0] }
+    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
 fn main() {
@@ -37,11 +39,11 @@ fn main() {
     const VIEWPORT_WIDTH: f64 = ASPECT_RATIO * VIEWPORT_HEIGHT;
     const FOCAL_LENGTH: f64 = 1.0;
 
-    const ORIGIN: Point3 = Point3 { e: [0.0, 0.0, 0.0] };
-    const HORIZONTAL: Vec3 = Vec3 { e: [ VIEWPORT_WIDTH, 0.0, 0.0] };
-    const VERTICAL: Vec3 = Vec3 { e: [ 0.0, VIEWPORT_HEIGHT, 0.0] };
+    let origin: Point3  = Point3::new(0.0, 0.0, 0.0);
+    let horizontal: Vec3  = Vec3::new(VIEWPORT_WIDTH, 0.0, 0.0);
+    let vertical: Vec3  = Vec3::new(0.0, VIEWPORT_HEIGHT, 0.0);
 
-    let lower_left_corner: Vec3 = ORIGIN - HORIZONTAL / 2.0 - VERTICAL / 2.0 - Vec3 { e: [0.0, 0.0, FOCAL_LENGTH ] };
+    let lower_left_corner: Vec3  = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, FOCAL_LENGTH );
 
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
 
@@ -51,7 +53,7 @@ fn main() {
             let u = i as f64 / (IMAGE_WIDTH - 1) as f64;
             let v = j as f64 / (IMAGE_HEIGHT - 1) as f64;
 
-            let r = Ray { origin: ORIGIN, dir: lower_left_corner + u * HORIZONTAL + v * VERTICAL - ORIGIN };
+            let r = ray::new(origin, lower_left_corner + u * horizontal + v * vertical - origin);
             let pixel_color = ray_color(&r);
             write_color(io::stdout().borrow_mut(), pixel_color).unwrap();
         }
