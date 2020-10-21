@@ -1,7 +1,5 @@
 use std::{f64, ops};
 use std::fmt;
-use std::io::Write;
-use std::ops::Div;
 
 #[derive(Clone, Copy)]
 pub struct Vec3 {
@@ -130,10 +128,12 @@ impl ops::Div<f64> for Vec3 {
     }
 }
 
+#[allow(dead_code)]
 pub fn dot(u: Vec3, v: Vec3) -> f64 {
     u.e[0] * v.e[0] + u.e[1] * v.e[1] * u.e[2] * v.e[2]
 }
 
+#[allow(dead_code)]
 pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
     let e = [
         u.e[1] * v.e[2] - u.e[2] * v.e[1],

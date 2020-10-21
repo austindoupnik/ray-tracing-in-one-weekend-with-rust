@@ -6,6 +6,7 @@ pub struct Ray {
 }
 
 impl Ray {
+    #[allow(dead_code)]
     pub fn origin(&self) -> Point3 {
         self.origin
     }
@@ -14,6 +15,7 @@ impl Ray {
         self.dir
     }
 
+    #[allow(dead_code)]
     pub fn at(&self, t: f64) -> Point3 {
         self.origin + t * self.dir
     }

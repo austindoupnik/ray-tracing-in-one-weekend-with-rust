@@ -3,7 +3,6 @@ use std::borrow::BorrowMut;
 use crate::color::{write_color, Color};
 use crate::vec3::{unit_vector, Point3, Vec3};
 use crate::ray::Ray;
-use std::convert::TryInto;
 
 mod vec3;
 mod color;
@@ -41,7 +40,7 @@ fn main() {
 
             let r = Ray { origin: ORIGIN, dir: lower_left_corner + u * HORIZONTAL + v * VERTICAL - ORIGIN };
             let pixel_color = ray_color(&r);
-            write_color(io::stdout().borrow_mut(), pixel_color);
+            write_color(io::stdout().borrow_mut(), pixel_color).unwrap();
         }
     }
 
