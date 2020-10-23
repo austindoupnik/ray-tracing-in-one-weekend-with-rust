@@ -9,7 +9,7 @@ use crate::hittable_list::HittableList;
 use crate::point3::Point3;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
-use crate::vec3::unit_vector;
+use crate::vec3::Vec3;
 
 mod vec3;
 mod color;
@@ -21,12 +21,17 @@ mod hittable_list;
 mod random;
 mod camera;
 
-fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
+    if depth <= 0 {
+        return Color::new(0.0, 0.0, 0.0)
+    }
+
     let mut rec = HitRecord::new();
-    if world.hit(r, 0.0, f64::INFINITY, &mut rec) {
-        0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
+    if world.hit(r, 0.001, f64::INFINITY, &mut rec) {
+        let target = rec.p + rec.normal + Vec3::random_unit_vector();
+        0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1)
     } else {
-        let unit_direction = unit_vector(r.direction());
+        let unit_direction = Vec3::unit_vector(r.direction());
         let t = 0.5 * (unit_direction.y() + 1.0);
         (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
@@ -38,6 +43,7 @@ fn main() {
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     let mut world = HittableList::new();
     world.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
@@ -56,7 +62,7 @@ fn main() {
                 let u = (i as f64 + random::random()) / (image_width - 1) as f64;
                 let v = (j as f64 + random::random()) as f64 / (image_height - 1) as f64;
                 let r = cam.get_ray(u, v);
-                pixel_color += ray_color(&r, &world);
+                pixel_color += ray_color(&r, &world, max_depth);
             }
             write_color(io::stdout().borrow_mut(), pixel_color, samples_per_pixel).unwrap();
         }

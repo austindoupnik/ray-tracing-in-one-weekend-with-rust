@@ -1,5 +1,7 @@
 use std::{f64, ops};
 use std::fmt;
+use crate::random;
+use crate::random::random_in_range;
 
 #[derive(Clone, Copy)]
 pub struct Vec3 {
@@ -31,6 +33,48 @@ impl Vec3 {
 
     pub fn length_squared(&self) -> f64 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
+    }
+
+
+    pub fn dot(u: Vec3, v: Vec3) -> f64 {
+        u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
+    }
+
+    #[allow(dead_code)]
+    pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
+        Vec3::new(
+            u.e[1] * v.e[2] - u.e[2] * v.e[1],
+            u.e[2] * v.e[0] - u.e[0] * v.e[2],
+            u.e[0] * v.e[1] - u.e[1] * v.e[0],
+        )
+    }
+
+    pub fn unit_vector(v: Vec3) -> Vec3 {
+        v / v.length()
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3::new(random::random(), random::random(), random::random())
+    }
+
+    pub fn random_in_range(min: f64, max: f64) -> Vec3 {
+        Vec3::new(random::random_in_range(min, max), random::random_in_range(min, max), random::random_in_range(min, max))
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random_in_range(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        let a = random_in_range(0.0, 2.0 * f64::consts::PI);
+        let z = random_in_range(-1.0, 1.0);
+        let r = f64::sqrt(1.0 - z * z);
+        Vec3::new(r * f64::cos(a), r * f64::sin(a), z)
     }
 }
 
@@ -130,22 +174,4 @@ impl ops::Div<f64> for Vec3 {
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
     }
-}
-
-#[allow(dead_code)]
-pub fn dot(u: Vec3, v: Vec3) -> f64 {
-    u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
-}
-
-#[allow(dead_code)]
-pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
-    Vec3::new(
-        u.e[1] * v.e[2] - u.e[2] * v.e[1],
-        u.e[2] * v.e[0] - u.e[0] * v.e[2],
-        u.e[0] * v.e[1] - u.e[1] * v.e[0],
-    )
-}
-
-pub fn unit_vector(v: Vec3) -> Vec3 {
-    v / v.length()
 }
