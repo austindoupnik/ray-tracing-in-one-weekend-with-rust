@@ -1,6 +1,6 @@
+use crate::hittable::{HitRecord, Hittable};
 use crate::point3::Point3;
 use crate::ray::Ray;
-use crate::hittable::{HitRecord, Hittable};
 use crate::vec3::dot;
 
 pub struct Sphere {

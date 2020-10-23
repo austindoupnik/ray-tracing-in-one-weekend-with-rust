@@ -1,5 +1,6 @@
-use crate::hittable::{Hittable, HitRecord};
 use std::rc::Rc;
+
+use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 
 pub struct HittableList {
