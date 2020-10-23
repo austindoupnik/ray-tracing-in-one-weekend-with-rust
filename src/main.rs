@@ -4,30 +4,29 @@ use std::io;
 use crate::color::{Color, write_color};
 use crate::point3::Point3;
 use crate::ray::Ray;
-use crate::vec3::{dot, unit_vector, Vec3};
+use crate::vec3::{unit_vector, Vec3};
+use crate::sphere::Sphere;
+use crate::hittable::{Hittable, HitRecord};
+use crate::hittable_list::HittableList;
+use std::rc::Rc;
 
 mod vec3;
 mod color;
 mod ray;
 mod point3;
+mod hittable;
+mod sphere;
+mod hittable_list;
 
-fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> bool {
-    let oc = r.origin() - *center;
-    let a = dot(r.direction(), r.direction());
-    let b = 2.0 * dot(oc, r.direction());
-    let c = dot(oc, oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
-}
-
-fn ray_color(r: &Ray) -> Color {
-    if hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Color::new(1.0, 0.0, 0.0);
+fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+    let mut rec = HitRecord::new();
+    if world.hit(r, 0.0, f64::INFINITY, &mut rec) {
+        0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
+    } else {
+        let unit_direction = unit_vector(r.direction());
+        let t = 0.5 * (unit_direction.y() + 1.0);
+        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
-
-    let unit_direction = unit_vector(r.direction());
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
 fn main() {
@@ -35,6 +34,11 @@ fn main() {
 
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
+
+    let mut world = HittableList::new();
+    world.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+    let world = world;
 
     const VIEWPORT_HEIGHT: f64 = 2.0;
     const VIEWPORT_WIDTH: f64 = ASPECT_RATIO * VIEWPORT_HEIGHT;
@@ -55,7 +59,7 @@ fn main() {
             let v = j as f64 / (IMAGE_HEIGHT - 1) as f64;
 
             let r = ray::new(origin, lower_left_corner + u * horizontal + v * vertical - origin);
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             write_color(io::stdout().borrow_mut(), pixel_color).unwrap();
         }
     }
