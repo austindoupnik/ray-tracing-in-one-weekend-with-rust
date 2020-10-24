@@ -36,12 +36,12 @@ impl Vec3 {
     }
 
 
-    pub fn dot(u: Vec3, v: Vec3) -> f64 {
+    pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
         u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
     }
 
     #[allow(dead_code)]
-    pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
+    pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
         Vec3::new(
             u.e[1] * v.e[2] - u.e[2] * v.e[1],
             u.e[2] * v.e[0] - u.e[0] * v.e[2],
@@ -78,7 +78,14 @@ impl Vec3 {
     }
 
     pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
-        *v - 2.0 * Vec3::dot(*v, *n) * *n
+        v - 2.0 * Vec3::dot(v, n) * n
+    }
+
+    pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
+        let cos_theta = Vec3::dot(&-uv, n);
+        let r_out_perp = etai_over_etat * (uv + cos_theta * n);
+        let r_out_parallel = -f64::sqrt(f64::abs(1.0 - r_out_perp.length_squared())) * n;
+        r_out_perp + r_out_parallel
     }
 }
 
@@ -87,6 +94,14 @@ impl ops::Neg for Vec3 {
 
     fn neg(self) -> Self::Output {
         Vec3::new(-self.e[0], -self.e[1], -self.e[2])
+    }
+}
+
+impl ops::Neg for &Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        -*self
     }
 }
 
@@ -140,11 +155,27 @@ impl ops::Add for Vec3 {
     }
 }
 
+impl ops::Add<Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        *self + rhs
+    }
+}
+
 impl ops::Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Vec3) -> Self::Output {
         Vec3::new(self.e[0] - rhs.e[0], self.e[1] - rhs.e[1], self.e[2] - rhs.e[2])
+    }
+}
+
+impl ops::Sub<Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Vec3) -> Self::Output {
+        *self - rhs
     }
 }
 
@@ -161,6 +192,14 @@ impl ops::Mul<Vec3> for f64 {
 
     fn mul(self, rhs: Vec3) -> Self::Output {
         Vec3::new(self * rhs.e[0], self * rhs.e[1], self * rhs.e[2])
+    }
+}
+
+impl ops::Mul<&Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: &Vec3) -> Self::Output {
+        self * *rhs
     }
 }
 
