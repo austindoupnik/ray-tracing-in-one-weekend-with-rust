@@ -62,11 +62,11 @@ fn main() {
     world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0, material_ground.clone())));
     world.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, material_center.clone())));
     world.add(Rc::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), 0.5, material_left.clone())));
-    world.add(Rc::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), -0.4, material_left.clone())));
+    world.add(Rc::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), -0.45, material_left.clone())));
     world.add(Rc::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right.clone())));
     let world = world;
 
-    let cam = Camera::new(aspect_ratio, 2.0, 1.0, Point3::new(0.0, 0.0, 0.0));
+    let cam = Camera::new(Point3::new(-2.0, 2.0, 1.0), Point3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 20.0, aspect_ratio);
 
     print!("P3\n{} {}\n255\n", image_width, image_height);
 
