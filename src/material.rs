@@ -1,8 +1,8 @@
-use crate::ray::Ray;
-use crate::hittable::HitRecord;
 use crate::color::Color;
-use crate::vec3::Vec3;
+use crate::hittable::HitRecord;
 use crate::random::random;
+use crate::ray::Ray;
+use crate::vec3::Vec3;
 
 pub trait Material {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool;

@@ -6,11 +6,11 @@ use crate::camera::Camera;
 use crate::color::{Color, write_color};
 use crate::hittable::{HitRecord, Hittable};
 use crate::hittable_list::HittableList;
+use crate::material::{Dielectric, Lambertian, Metal};
 use crate::point3::Point3;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::vec3::Vec3;
-use crate::material::{Lambertian, Metal, Dielectric};
 
 mod vec3;
 mod color;
@@ -25,7 +25,7 @@ mod material;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
-        return Color::new(0.0, 0.0, 0.0)
+        return Color::new(0.0, 0.0, 0.0);
     }
 
     let mut rec = HitRecord::new();
@@ -66,7 +66,11 @@ fn main() {
     world.add(Rc::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right.clone())));
     let world = world;
 
-    let cam = Camera::new(Point3::new(-2.0, 2.0, 1.0), Point3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 20.0, aspect_ratio);
+    let lookfrom = Point3::new(3.0, 3.0, 2.0);
+    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let dist_to_focus = (lookfrom - lookat).length();
+
+    let cam = Camera::new(lookfrom, lookat, Vec3::new(0.0, 1.0, 0.0), 20.0, aspect_ratio, 2.0, dist_to_focus);
 
     print!("P3\n{} {}\n255\n", image_width, image_height);
 

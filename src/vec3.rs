@@ -1,5 +1,6 @@
 use std::{f64, ops};
 use std::fmt;
+
 use crate::random;
 use crate::random::random_in_range;
 
@@ -74,6 +75,15 @@ impl Vec3 {
         let z = random_in_range(-1.0, 1.0);
         let r = f64::sqrt(1.0 - z * z);
         Vec3::new(r * f64::cos(a), r * f64::sin(a), z)
+    }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(random_in_range(-1.0, 1.0), random_in_range(-1.0, 1.0), 0.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
     }
 
     pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {

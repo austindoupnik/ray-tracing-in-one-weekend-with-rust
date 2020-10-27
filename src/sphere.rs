@@ -1,9 +1,10 @@
+use std::rc::Rc;
+
 use crate::hittable::{HitRecord, Hittable};
+use crate::material::Material;
 use crate::point3::Point3;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
-use std::rc::Rc;
-use crate::material::Material;
 
 pub struct Sphere {
     pub center: Point3,
