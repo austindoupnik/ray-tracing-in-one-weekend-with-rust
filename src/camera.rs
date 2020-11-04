@@ -1,6 +1,7 @@
 use crate::point3::Point3;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
+use crate::random::random_in_range;
 
 pub struct Camera {
     pub origin: Point3,
@@ -10,10 +11,22 @@ pub struct Camera {
     pub lens_radius: f64,
     pub u: Vec3,
     pub v: Vec3,
+    pub time0: f64,
+    pub time1: f64,
 }
 
 impl Camera {
-    pub fn new(lookfrom: Point3, lookat: Point3, vup: Vec3, fov: f64, aspect_ratio: f64, aperture: f64, focus_dist: f64) -> Camera {
+    pub fn new(
+        lookfrom: Point3,
+        lookat: Point3,
+        vup: Vec3,
+        fov: f64,
+        aspect_ratio: f64,
+        aperture: f64,
+        focus_dist: f64,
+        time0: f64,
+        time1: f64,
+    ) -> Camera {
         let theta = f64::to_radians(fov);
         let h = f64::tan(theta / 2.0);
         let viewport_height = 2.0 * h;
@@ -36,6 +49,8 @@ impl Camera {
             lens_radius: aperture / 2.0,
             u,
             v,
+            time0,
+            time1,
         }
     }
 
@@ -43,6 +58,10 @@ impl Camera {
         let rd = self.lens_radius * Vec3::random_in_unit_disk();
         let offset = self.u * rd.x() + self.v * rd.y();
 
-        Ray::new(self.origin + offset, self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset)
+        Ray::new(
+            self.origin + offset,
+            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+            random_in_range(self.time0, self.time1)
+        )
     }
 }
