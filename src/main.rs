@@ -13,6 +13,7 @@ use crate::sphere::Sphere;
 use crate::vec3::Vec3;
 use crate::random::{random_in_range, random};
 use crate::moving_sphere::MovingSphere;
+use crate::bvh_node::BvhNode;
 
 mod vec3;
 mod color;
@@ -25,6 +26,8 @@ mod random;
 mod camera;
 mod material;
 mod moving_sphere;
+mod aabb;
+mod bvh_node;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
@@ -49,10 +52,10 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
 }
 
 fn random_scene() -> HittableList {
-    let mut world = HittableList::new();
+    let mut objects: Vec<Rc<dyn Hittable>> = Vec::new();
 
     let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
-    world.add(Rc::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Rc::new(ground_material))));
+    objects.push(Rc::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Rc::new(ground_material))));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -64,28 +67,40 @@ fn random_scene() -> HittableList {
                     let albedo = Color::random() * Color::random();
                     let sphere_material = Rc::new(Lambertian::new(albedo));
                     let center1 = center + Vec3::new(0.0, random_in_range(0.0, 0.5), 0.0);
-                    world.add(Rc::new(MovingSphere::new(center, center1, 0.0, 1.0, 0.2, sphere_material.clone())));
+                    objects.push(Rc::new(MovingSphere::new(center, center1, 0.0, 1.0, 0.2, sphere_material.clone())));
                 } else if choose_mat < 0.95 {
                     let albedo = Color::random_in_range(0.5, 1.0);
                     let fuzz = random_in_range(0.0, 0.5);
                     let sphere_material = Rc::new(Metal::new(albedo, fuzz));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material.clone())));
+                    objects.push(Rc::new(Sphere::new(center, 0.2, sphere_material.clone())));
                 } else {
                     let sphere_material = Rc::new(Dielectric::new(1.5));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material.clone())));
+                    objects.push(Rc::new(Sphere::new(center, 0.2, sphere_material.clone())));
                 }
             }
         }
     }
 
     let material1 = Dielectric::new(1.5);
-    world.add(Rc::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, Rc::new(material1))));
+    objects.push(Rc::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, Rc::new(material1))));
 
     let material2 = Lambertian::new(Color::new(0.4, 0.2, 0.1));
-    world.add(Rc::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Rc::new(material2))));
+    objects.push(Rc::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Rc::new(material2))));
 
     let material3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
-    world.add(Rc::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Rc::new(material3))));
+    objects.push(Rc::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Rc::new(material3))));
+
+    let end = objects.len();
+    let bvh_node = BvhNode::new(
+        &mut objects,
+        0,
+        end,
+        0.0,
+        1.0
+    );
+
+    let mut world = HittableList::new();
+    world.add(Rc::new(bvh_node));
 
     world
 }

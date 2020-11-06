@@ -5,6 +5,7 @@ use crate::material::Material;
 use crate::point3::Point3;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
+use crate::aabb::Aabb;
 
 pub struct Sphere {
     pub center: Point3,
@@ -55,5 +56,14 @@ impl Hittable for Sphere {
         }
 
         return false;
+    }
+
+    fn bounding_box(&self, _time0: f64, _time1: f64, output_box: &mut Aabb) -> bool {
+        *output_box = Aabb::new(
+          self.center - Vec3::new(self.radius, self.radius, self.radius),
+          self.center + Vec3::new(self.radius, self.radius, self.radius),
+        );
+
+        true
     }
 }
