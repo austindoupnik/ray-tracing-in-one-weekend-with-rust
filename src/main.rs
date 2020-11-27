@@ -14,6 +14,7 @@ use crate::vec3::Vec3;
 use crate::random::{random_in_range, random};
 use crate::moving_sphere::MovingSphere;
 use crate::bvh_node::BvhNode;
+use crate::texture::CheckerTexture;
 
 mod vec3;
 mod color;
@@ -28,6 +29,7 @@ mod material;
 mod moving_sphere;
 mod aabb;
 mod bvh_node;
+mod texture;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
@@ -54,8 +56,8 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
 fn random_scene() -> HittableList {
     let mut objects: Vec<Rc<dyn Hittable>> = Vec::new();
 
-    let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
-    objects.push(Rc::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Rc::new(ground_material))));
+    let checker = Rc::new(CheckerTexture::new(Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9)));
+    objects.push(Rc::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Rc::new(Lambertian::new_from_texture(checker)))));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -105,6 +107,16 @@ fn random_scene() -> HittableList {
     world
 }
 
+fn two_spheres() -> HittableList {
+    let checker = Rc::new(CheckerTexture::new(Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9)));
+
+    let mut world = HittableList::new();
+    world.add(Rc::new(Sphere::new(Point3::new(0.0, -10.0, 0.0), 10.0, Rc::new(Lambertian::new_from_texture(checker.clone())))));
+    world.add(Rc::new(Sphere::new(Point3::new(0.0,  10.0, 0.0), 10.0, Rc::new(Lambertian::new_from_texture(checker.clone())))));
+
+    world
+}
+
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
 
@@ -113,13 +125,32 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
-    let world = random_scene();
+    let world;
+    let lookfrom;
+    let lookat;
+    let vfov;
+    let aperture;
 
-    let lookfrom = Point3::new(13.0, 2.0, 3.0);
-    let lookat = Point3::new(0.0, 0.0, 0.0);
+    match 0 {
+        1 => {
+            world = random_scene();
+            lookfrom = Point3::new(13.0, 2.0, 3.0);
+            lookat = Point3::new(0.0, 0.0, 0.0);
+            vfov = 20.0;
+            aperture = 0.1;
+        },
+        2 | _ => {
+            world = two_spheres();
+            lookfrom = Point3::new(13.0, 2.0, 3.0);
+            lookat = Point3::new(0.0, 0.0, 0.0);
+            vfov = 20.0;
+            aperture = 0.0;
+        },
+    }
+
     let dist_to_focus = 10.0;
-
-    let cam = Camera::new(lookfrom, lookat, Vec3::new(0.0, 1.0, 0.0), 20.0, aspect_ratio, 0.1, dist_to_focus, 0.0, 1.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let cam = Camera::new(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     print!("P3\n{} {}\n255\n", image_width, image_height);
 

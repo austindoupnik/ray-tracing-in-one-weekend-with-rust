@@ -23,6 +23,13 @@ impl Sphere {
     }
 }
 
+fn get_sphere_uv(p: &Point3, u: &mut f64, v: &mut f64) {
+    let theta = f64::cos(-p.y());
+    let phi = f64::atan2(-p.z(), p.x()) + std::f64::consts::PI;
+    *u = phi / (2.0 * std::f64::consts::PI);
+    *v = theta / std::f64::consts::PI;
+}
+
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
         let oc = r.origin() - self.center;
@@ -40,6 +47,7 @@ impl Hittable for Sphere {
                 rec.p = r.at(rec.t);
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, &outward_normal);
+                get_sphere_uv(&outward_normal, &mut rec.u, &mut rec.v);
                 rec.mat_ptr = Some(self.mat_ptr.clone());
                 return true;
             }
@@ -50,6 +58,7 @@ impl Hittable for Sphere {
                 rec.p = r.at(rec.t);
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, &outward_normal);
+                get_sphere_uv(&outward_normal, &mut rec.u, &mut rec.v);
                 rec.mat_ptr = Some(self.mat_ptr.clone());
                 return true;
             }
@@ -60,8 +69,8 @@ impl Hittable for Sphere {
 
     fn bounding_box(&self, _time0: f64, _time1: f64, output_box: &mut Aabb) -> bool {
         *output_box = Aabb::new(
-          self.center - Vec3::new(self.radius, self.radius, self.radius),
-          self.center + Vec3::new(self.radius, self.radius, self.radius),
+            self.center - Vec3::new(self.radius, self.radius, self.radius),
+            self.center + Vec3::new(self.radius, self.radius, self.radius),
         );
 
         true
