@@ -14,7 +14,7 @@ use crate::vec3::Vec3;
 use crate::random::{random_in_range, random};
 use crate::moving_sphere::MovingSphere;
 use crate::bvh_node::BvhNode;
-use crate::texture::CheckerTexture;
+use crate::texture::{CheckerTexture, NoiseTexture};
 
 mod vec3;
 mod color;
@@ -30,6 +30,7 @@ mod moving_sphere;
 mod aabb;
 mod bvh_node;
 mod texture;
+mod perlin;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
@@ -117,6 +118,16 @@ fn two_spheres() -> HittableList {
     world
 }
 
+fn two_perlin_spheres() -> HittableList {
+    let pertext = Rc::new(NoiseTexture::new(4.0));
+
+    let mut world = HittableList::new();
+    world.add(Rc::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Rc::new(Lambertian::new_from_texture(pertext.clone())))));
+    world.add(Rc::new(Sphere::new(Point3::new(0.0,  2.0, 0.0), 2.0, Rc::new(Lambertian::new_from_texture(pertext.clone())))));
+
+    world
+}
+
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
 
@@ -139,8 +150,15 @@ fn main() {
             vfov = 20.0;
             aperture = 0.1;
         },
-        2 | _ => {
+        2 => {
             world = two_spheres();
+            lookfrom = Point3::new(13.0, 2.0, 3.0);
+            lookat = Point3::new(0.0, 0.0, 0.0);
+            vfov = 20.0;
+            aperture = 0.0;
+        },
+        3 | _ => {
+            world = two_perlin_spheres();
             lookfrom = Point3::new(13.0, 2.0, 3.0);
             lookat = Point3::new(0.0, 0.0, 0.0);
             vfov = 20.0;
