@@ -14,7 +14,8 @@ use crate::vec3::Vec3;
 use crate::random::{random_in_range, random};
 use crate::moving_sphere::MovingSphere;
 use crate::bvh_node::BvhNode;
-use crate::texture::{CheckerTexture, NoiseTexture};
+use crate::texture::{CheckerTexture, NoiseTexture, ImageTexture};
+use std::path::Path;
 
 mod vec3;
 mod color;
@@ -128,6 +129,17 @@ fn two_perlin_spheres() -> HittableList {
     world
 }
 
+fn earth() -> HittableList {
+    let earth_texture = Rc::new(ImageTexture::new(Path::new("earthmap.jpg")));
+    let earth_surface = Rc::new(Lambertian::new_from_texture(earth_texture));
+    let globe = Rc::new(Sphere::new(Point3::new(0.0, 0.0, 0.0), 2.0, earth_surface));
+
+    let mut world = HittableList::new();
+    world.add(globe);
+
+    world
+}
+
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
 
@@ -157,8 +169,15 @@ fn main() {
             vfov = 20.0;
             aperture = 0.0;
         },
-        3 | _ => {
+        3 => {
             world = two_perlin_spheres();
+            lookfrom = Point3::new(13.0, 2.0, 3.0);
+            lookat = Point3::new(0.0, 0.0, 0.0);
+            vfov = 20.0;
+            aperture = 0.0;
+        },
+        4 | _ => {
+            world = earth();
             lookfrom = Point3::new(13.0, 2.0, 3.0);
             lookat = Point3::new(0.0, 0.0, 0.0);
             vfov = 20.0;

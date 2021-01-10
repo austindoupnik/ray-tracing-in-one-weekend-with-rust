@@ -4,7 +4,7 @@ use crate::vec3::Vec3;
 
 pub type Color = Vec3;
 
-fn clamp(x: f64, min: f64, max: f64) -> f64 {
+pub fn clamp<T: PartialOrd>(x: T, min: T, max: T) -> T {
     if x < min {
         min
     } else if x > max {

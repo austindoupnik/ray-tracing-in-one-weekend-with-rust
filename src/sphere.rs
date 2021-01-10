@@ -24,7 +24,7 @@ impl Sphere {
 }
 
 fn get_sphere_uv(p: &Point3, u: &mut f64, v: &mut f64) {
-    let theta = f64::cos(-p.y());
+    let theta = f64::acos(-p.y());
     let phi = f64::atan2(-p.z(), p.x()) + std::f64::consts::PI;
     *u = phi / (2.0 * std::f64::consts::PI);
     *v = theta / std::f64::consts::PI;
