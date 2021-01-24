@@ -1,11 +1,12 @@
+use std::rc::Rc;
+
 use crate::color::Color;
 use crate::hittable::HitRecord;
+use crate::point3::Point3;
 use crate::random::random;
 use crate::ray::Ray;
+use crate::texture::{SolidColor, Texture};
 use crate::vec3::Vec3;
-use crate::texture::{Texture, SolidColor};
-use std::rc::Rc;
-use crate::point3::Point3;
 
 pub trait Material {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool;

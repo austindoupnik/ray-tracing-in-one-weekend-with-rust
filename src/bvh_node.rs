@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::rc::Rc;
 
 use crate::aabb::Aabb;
@@ -5,7 +6,6 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::point3::Point3;
 use crate::random::random_usize_in_range;
 use crate::ray::Ray;
-use std::cmp::Ordering;
 
 pub struct BvhNode {
     pub left: Rc<dyn Hittable>,
@@ -58,7 +58,7 @@ impl BvhNode {
         BvhNode {
             left,
             right,
-            bounding_box: Aabb::surrounding_box(&box_left, &box_right)
+            bounding_box: Aabb::surrounding_box(&box_left, &box_right),
         }
     }
 }

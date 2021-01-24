@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
+use crate::aabb::Aabb;
+use crate::hittable::{HitRecord, Hittable};
 use crate::material::Material;
 use crate::point3::Point3;
-use crate::hittable::{Hittable, HitRecord};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
-use crate::aabb::Aabb;
 
 pub struct MovingSphere {
     pub center0: Point3,

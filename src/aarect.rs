@@ -1,9 +1,10 @@
 use std::rc::Rc;
-use crate::material::Material;
-use crate::hittable::{Hittable, HitRecord};
-use crate::ray::Ray;
+
 use crate::aabb::Aabb;
+use crate::hittable::{HitRecord, Hittable};
+use crate::material::Material;
 use crate::point3::Point3;
+use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 pub struct XyRect {
@@ -107,7 +108,7 @@ impl Hittable for XzRect {
     }
 
     fn bounding_box(&self, _time0: f64, _time1: f64, output_box: &mut Aabb) -> bool {
-        *output_box = Aabb::new(Point3::new(self.x0, self.z0, self.k - 0.0001), Point3::new(self.x1, self.z1, self.k + 0.0001));
+        *output_box = Aabb::new(Point3::new(self.x0, self.k - 0.0001, self.z0), Point3::new(self.x1, self.k + 0.0001, self.z1));
         true
     }
 }
@@ -160,7 +161,7 @@ impl Hittable for YzRect {
     }
 
     fn bounding_box(&self, _time0: f64, _time1: f64, output_box: &mut Aabb) -> bool {
-        *output_box = Aabb::new(Point3::new(self.y0, self.z0, self.k - 0.0001), Point3::new(self.y1, self.z1, self.k + 0.0001));
+        *output_box = Aabb::new(Point3::new(self.k - 0.0001, self.y0, self.z0), Point3::new(self.k + 0.0001, self.y1, self.z1));
         true
     }
 }

@@ -1,5 +1,5 @@
 use crate::point3::Point3;
-use crate::random::{random_usize_in_range};
+use crate::random::random_usize_in_range;
 use crate::vec3::Vec3;
 
 const POINT_COUNT: usize = 256;

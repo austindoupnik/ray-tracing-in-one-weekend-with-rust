@@ -1,22 +1,23 @@
 use std::borrow::BorrowMut;
 use std::io;
+use std::path::Path;
 use std::rc::Rc;
 
+use crate::aarect::{XyRect, XzRect, YzRect};
+use crate::block::Block;
+use crate::bvh_node::BvhNode;
 use crate::camera::Camera;
 use crate::color::{Color, write_color};
-use crate::hittable::{HitRecord, Hittable};
+use crate::hittable::{HitRecord, Hittable, RotateY, Translate};
 use crate::hittable_list::HittableList;
-use crate::material::{Dielectric, Lambertian, Metal, DiffuseLight};
+use crate::material::{Dielectric, DiffuseLight, Lambertian, Metal};
+use crate::moving_sphere::MovingSphere;
 use crate::point3::Point3;
+use crate::random::{random, random_in_range};
 use crate::ray::Ray;
 use crate::sphere::Sphere;
+use crate::texture::{CheckerTexture, ImageTexture, NoiseTexture, SolidColor};
 use crate::vec3::Vec3;
-use crate::random::{random_in_range, random};
-use crate::moving_sphere::MovingSphere;
-use crate::bvh_node::BvhNode;
-use crate::texture::{CheckerTexture, NoiseTexture, ImageTexture, SolidColor};
-use std::path::Path;
-use crate::aarect::{XyRect, YzRect, XzRect};
 
 mod vec3;
 mod color;
@@ -34,6 +35,7 @@ mod bvh_node;
 mod texture;
 mod perlin;
 mod aarect;
+mod block;
 
 fn ray_color(r: &Ray, background: &Color, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
@@ -171,6 +173,16 @@ fn cornell_box() -> HittableList {
 
     world.add(Rc::new(XyRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())));
 
+    let box1 = Rc::new(Block::new(Point3::new(0.0, 0.0, 0.0), Point3::new(165.0, 330.0, 165.0), white.clone()));
+    let box1 = Rc::new(RotateY::new(box1.clone(), 15.0));
+    let box1 = Rc::new(Translate::new(box1.clone(), Vec3::new(265.0, 0.0, 295.0)));
+    world.add(box1);
+
+    let box2 = Rc::new(Block::new(Point3::new(0.0, 0.0, 0.0), Point3::new(165.0, 165.0, 165.0), white.clone()));
+    let box2 = Rc::new(RotateY::new(box2.clone(), -18.0));
+    let box2 = Rc::new(Translate::new(box2.clone(), Vec3::new(130.0, 0.0, 65.0)));
+    world.add(box2);
+
     world
 }
 
@@ -253,7 +265,7 @@ fn main() {
             lookfrom = Point3::new(278.0, 278.0, -800.0);
             lookat = Point3::new(278.0, 278.0, 0.0);
             vfov = 40.0;
-            aperture = 0.1;
+            aperture = 0.0;
         }
     }
 

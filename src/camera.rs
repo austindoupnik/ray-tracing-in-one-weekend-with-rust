@@ -1,7 +1,7 @@
 use crate::point3::Point3;
+use crate::random::random_in_range;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
-use crate::random::random_in_range;
 
 pub struct Camera {
     pub origin: Point3,
@@ -61,7 +61,7 @@ impl Camera {
         Ray::new(
             self.origin + offset,
             self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
-            random_in_range(self.time0, self.time1)
+            random_in_range(self.time0, self.time1),
         )
     }
 }
