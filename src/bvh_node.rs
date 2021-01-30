@@ -42,7 +42,7 @@ impl BvhNode {
         } else {
             objects[start..end].sort_by(comparator);
 
-            let mid = start + object_span / 2.0 as usize;
+            let mid = start + object_span / 2;
             let left: Rc<dyn Hittable> = Rc::new(BvhNode::new(objects, start, mid, time0, time1));
             let right: Rc<dyn Hittable> = Rc::new(BvhNode::new(objects, mid, end, time0, time1));
             (left, right)
@@ -61,7 +61,12 @@ impl BvhNode {
             bounding_box: Aabb::surrounding_box(&box_left, &box_right),
         }
     }
+
+    pub fn new_from_list(objects: &mut Vec<Rc<dyn Hittable>>) -> Self {
+        BvhNode::new(objects, 0, objects.len(), 0.0, 1.0)
+    }
 }
+
 
 fn box_compare(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>, axis: usize) -> std::cmp::Ordering {
     let mut box_a = Aabb::new(Point3::new(0.0, 0.0, 0.0), Point3::new(0.0, 0.0, 0.0));
@@ -105,7 +110,7 @@ impl Hittable for BvhNode {
     }
 
     fn bounding_box(&self, _time0: f64, _time1: f64, output_box: &mut Aabb) -> bool {
-        *output_box = Aabb::new(self.bounding_box.min(), self.bounding_box.max());
+        *output_box = self.bounding_box;
         true
     }
 }

@@ -5,7 +5,7 @@ use std::rc::Rc;
 
 use crate::aarect::{XyRect, XzRect, YzRect};
 use crate::block::Block;
-use crate::bvh_node::BvhNode;
+use crate::bvh_node::{BvhNode};
 use crate::camera::Camera;
 use crate::color::{Color, write_color};
 use crate::hittable::{HitRecord, Hittable, RotateY, Translate};
@@ -18,6 +18,7 @@ use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::texture::{CheckerTexture, ImageTexture, NoiseTexture, SolidColor};
 use crate::vec3::Vec3;
+use crate::constant_medium::ConstantMedium;
 
 mod vec3;
 mod color;
@@ -36,6 +37,7 @@ mod texture;
 mod perlin;
 mod aarect;
 mod block;
+mod constant_medium;
 
 fn ray_color(r: &Ray, background: &Color, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
@@ -97,14 +99,7 @@ fn random_scene() -> HittableList {
     let material3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
     objects.push(Rc::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Rc::new(material3))));
 
-    let end = objects.len();
-    let bvh_node = BvhNode::new(
-        &mut objects,
-        0,
-        end,
-        0.0,
-        1.0,
-    );
+    let bvh_node = BvhNode::new_from_list(&mut objects);
 
     let mut world = HittableList::new();
     world.add(Rc::new(bvh_node));
@@ -168,9 +163,9 @@ fn cornell_box() -> HittableList {
     world.add(Rc::new(YzRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
 
     world.add(Rc::new(XzRect::new(213.0, 343.0, 227.0, 332.0, 554.0, light)));
+
     world.add(Rc::new(XzRect::new(0.0, 555.0, 0.0, 555.0, 0.0, white.clone())));
     world.add(Rc::new(XzRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())));
-
     world.add(Rc::new(XyRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())));
 
     let box1 = Rc::new(Block::new(Point3::new(0.0, 0.0, 0.0), Point3::new(165.0, 330.0, 165.0), white.clone()));
@@ -182,6 +177,37 @@ fn cornell_box() -> HittableList {
     let box2 = Rc::new(RotateY::new(box2.clone(), -18.0));
     let box2 = Rc::new(Translate::new(box2.clone(), Vec3::new(130.0, 0.0, 65.0)));
     world.add(box2);
+
+    world
+}
+
+fn cornell_smoke() -> HittableList {
+    let red = Rc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
+    let white = Rc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let green = Rc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
+
+    let light = Rc::new(DiffuseLight::new(Rc::new(SolidColor::new(Color::new(7.0, 7.0, 7.0)))));
+
+    let mut world = HittableList::new();
+
+    world.add(Rc::new(YzRect::new(0.0, 555.0, 0.0, 555.0, 555.0, green)));
+    world.add(Rc::new(YzRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
+
+    world.add(Rc::new(XzRect::new(113.0, 443.0, 127.0, 432.0, 554.0, light)));
+
+    world.add(Rc::new(XzRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())));
+    world.add(Rc::new(XzRect::new(0.0, 555.0, 0.0, 555.0, 0.0, white.clone())));
+    world.add(Rc::new(XyRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())));
+
+    let box1 = Rc::new(Block::new(Point3::new(0.0, 0.0, 0.0), Point3::new(165.0, 330.0, 165.0), white.clone()));
+    let box1 = Rc::new(RotateY::new(box1.clone(), 15.0));
+    let box1 = Rc::new(Translate::new(box1.clone(), Vec3::new(265.0, 0.0, 295.0)));
+    world.add(Rc::new(ConstantMedium::new(box1, 0.01, Rc::new(SolidColor::new(Color::new(0.0, 0.0, 0.0))))));
+
+    let box2 = Rc::new(Block::new(Point3::new(0.0, 0.0, 0.0), Point3::new(165.0, 165.0, 165.0), white.clone()));
+    let box2 = Rc::new(RotateY::new(box2.clone(), -18.0));
+    let box2 = Rc::new(Translate::new(box2.clone(), Vec3::new(130.0, 0.0, 65.0)));
+    world.add(Rc::new(ConstantMedium::new(box2, 0.01, Rc::new(SolidColor::new(Color::new(1.0, 1.0, 1.0))))));
 
     world
 }
@@ -256,8 +282,19 @@ fn main() {
             vfov = 20.0;
             aperture = 0.1;
         }
-        6 | _ => {
+        6 => {
             world = cornell_box();
+            aspect_ratio = 1.0;
+            image_width = 600;
+            samples_per_pixel = 200;
+            background = Color::new(0.0, 0.0, 0.0);
+            lookfrom = Point3::new(278.0, 278.0, -800.0);
+            lookat = Point3::new(278.0, 278.0, 0.0);
+            vfov = 40.0;
+            aperture = 0.0;
+        }
+        7 | _ => {
+            world = cornell_smoke();
             aspect_ratio = 1.0;
             image_width = 600;
             samples_per_pixel = 200;
